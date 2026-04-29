@@ -10070,6 +10070,20 @@ getRegistersForValue(SelectionDAG &DAG, const SDLoc &DL,
           OpInfo.CallOperand =
               DAG.getNode(ISD::BITCAST, DL, VT, OpInfo.CallOperand);
         OpInfo.ConstraintVT = VT;
+        // If the operand is a vector value and the constraint requires an
+        // integer register, bitcast the vector to an integer of the same
+        // total size. This allows the existing scalar integer splitting path
+        // to handle the register allocation (e.g. a <16 x i8> passed via
+        // "{x0}" is bitcast to i128, which is then split into two i64 parts
+        // across a consecutive GPR pair). Indirect inputs are excluded
+        // because OpInfo.CallOperand still refers to the address rather than
+        // the pointed-to value at this point.
+      } else if (RegVT.isInteger() && OpInfo.ConstraintVT.isVector()) {
+        MVT IntVT = MVT::getIntegerVT(OpInfo.ConstraintVT.getSizeInBits());
+        if (OpInfo.Type == InlineAsm::isInput && !OpInfo.isIndirect)
+          OpInfo.CallOperand =
+              DAG.getNode(ISD::BITCAST, DL, IntVT, OpInfo.CallOperand);
+        OpInfo.ConstraintVT = IntVT;
       }
     }
   }

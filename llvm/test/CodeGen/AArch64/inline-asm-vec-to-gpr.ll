@@ -12,12 +12,12 @@ define dso_local void @fpr_to_gpr(<16 x i8> noundef %q0) #0 {
 ; CHECK-NEXT:    //NO_APP
 ; CHECK-NEXT:    ret
 entry:
-	  %q0.addr = alloca <16 x i8>, align 16
-	    %x0 = alloca <16 x i8>, align 16
-	      store <16 x i8> %q0, ptr %q0.addr, align 16
-	        %0 = load <16 x i8>, ptr %q0.addr, align 16
-		  store <16 x i8> %0, ptr %x0, align 16
-		    %1 = load <16 x i8>, ptr %x0, align 16
-		      call void asm sideeffect "", "{x0}"(<16 x i8> %1)
-		        ret void
+	%q0.addr = alloca <16 x i8>, align 16
+	%x0 = alloca <16 x i8>, align 16
+	store <16 x i8> %q0, ptr %q0.addr, align 16
+	%0 = load <16 x i8>, ptr %q0.addr, align 16
+	store <16 x i8> %0, ptr %x0, align 16
+	%1 = load <16 x i8>, ptr %x0, align 16
+	call void asm sideeffect "", "{x0}"(<16 x i8> %1)
+	ret void
 }
